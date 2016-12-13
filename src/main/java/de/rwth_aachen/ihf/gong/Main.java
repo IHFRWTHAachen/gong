@@ -3,21 +3,14 @@ package de.rwth_aachen.ihf.gong;
 
 import java.io.*;
 import javax.sound.sampled.*;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
+import java.lang.*;
 
 public final class Main {
 
     public static void main(String[] args) {
 
 
-        AudioFormat af48000 = new AudioFormat(24000, 16, 1, true, true);
+        AudioFormat af48000 = new AudioFormat(44100, 16, 1, true, true);
 
         TargetDataLine line = null;
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, af48000); // format is an audioformat object
@@ -87,16 +80,20 @@ public final class Main {
                 if (glmittelwert > 1000) {
                     spracheaktiv = true;
                     System.out.println("mikro ist an");
+                    try {
+                        Class cls = Class.forName("de.rwth_aachen.ihf.gong.Main");
+                        ClassLoader classLoader = cls.getClassLoader();
 
-                    try
-                    {
-                        Clip clip = AudioSystem.getClip();
-                        clip.open(AudioSystem.getAudioInputStream(new File("gong1.wav")));
-                        clip.start();
-                    }
-                    catch (Exception exc)
-                    {
-                        exc.printStackTrace(System.out);
+                        try {
+                            Clip clip = AudioSystem.getClip();
+                            File Gongfile = new File(classLoader.getResource("gong1.wav").getFile());
+                            clip.open(AudioSystem.getAudioInputStream(Gongfile));
+                            clip.start();
+                        } catch (Exception exc) {
+                            exc.printStackTrace(System.out);
+                        }
+                    } catch (ClassNotFoundException e) {
+                        System.out.println(e.toString());
                     }
                 }
             }
