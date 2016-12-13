@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="gong:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/gong_jar</output-path>
-    <root id="archive" name="gong.jar">
-      <element id="module-output" name="gong" />
-    </root>
-  </artifact>
-</component>
