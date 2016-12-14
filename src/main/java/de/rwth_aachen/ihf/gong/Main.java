@@ -19,7 +19,7 @@ public final class Main {
     private static int UpperBound = 0;
 
     private static void printVersion() {
-        System.out.println("Gong Version 1.0");
+        System.out.println("Gong Version 1.0.4");
         System.out.println("by Ralf Wilke, Korbinian Schraml, powered by IHF RWTH Aachen");
         System.out.println("New Versions at https://github.com/ihfrwthaachen/gong");
         System.out.println();
@@ -141,7 +141,6 @@ public final class Main {
             glmittelwert /= numberglm;
 
 
-//            system.out.println(numbytesread);
             System.out.println(glmittelwert);
 
             if (spracheaktiv) {
@@ -154,10 +153,22 @@ public final class Main {
                 if (glmittelwert > UpperBound) {
                     spracheaktiv = true;
                     System.out.println("Mikro ist an");
-                    try {
-                        Clip clip = AudioSystem.getClip();
+                    try (Clip clip = AudioSystem.getClip()) {
                         clip.open(AudioSystem.getAudioInputStream(new File(GongFileName)));
+                        clip.addLineListener((e) -> {
+                            if (e.getType() == LineEvent.Type.STOP) {
+                                try {
+                                    clip.close();
+                                    e.getLine().close();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace(System.out);
+                                }
+
+                            }
+
+                        });
                         clip.start();
+                        clip.loop(0);
                     } catch (Exception exc) {
                         exc.printStackTrace(System.out);
                     }
