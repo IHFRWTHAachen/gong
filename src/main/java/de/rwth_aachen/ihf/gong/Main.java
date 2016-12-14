@@ -4,10 +4,84 @@ package de.rwth_aachen.ihf.gong;
 import java.io.*;
 import javax.sound.sampled.*;
 import java.lang.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 
 public final class Main {
 
+    private static String GongFileName = "";
+    private static int LowerBound = 0;
+    private static int UpperBound = 0;
+
+    private static void printVersion() {
+        System.out.println("Gong Version 1.0");
+        System.out.println("by Ralf Wilke, Korbinian Schraml, powered by IHF RWTH Aachen");
+        System.out.println("New Versions at https://github.com/ihfrwthaachen/gong");
+        System.out.println();
+    }
+
+
+    private static boolean parseArguments(String[] args) {
+
+        Options opts = new Options();
+        opts.addOption("g", "gong", true, "Wave file to be played.");
+        opts.addOption("h", "help", false, "Show this help.");
+        opts.addOption("v", "version", false, "Show version information.");
+        opts.addOption("l", "lower", true, "Lower threshold to activate gong.");
+        opts.addOption("u", "upper", true, "Upper threshold to activate gong.");
+
+
+
+        CommandLineParser parser = new DefaultParser();
+        CommandLine line = null;
+        try {
+            line = parser.parse(opts, args);
+        } catch (ParseException ex) {
+//            log.log(Level.SEVERE, "Failed to parse command line.", ex);
+            return false;
+        }
+
+        if (line.hasOption('h')) {
+            HelpFormatter fmt = new HelpFormatter();
+            fmt.printHelp("gong", opts);
+            System.exit(0);
+            return false;
+        }
+
+        if (line.hasOption('v')) {
+            printVersion();
+            return false;
+        }
+
+        if (line.hasOption('g')) {
+            GongFileName = line.getOptionValue('g');
+        } else {
+            System.out.println("No Gong file");
+        }
+
+        if (line.hasOption('l')) {
+            LowerBound = Integer.parseInt(line.getOptionValue('l'));
+        } else {
+            System.out.println("No lower bound given");
+            return false;
+        }
+
+        if (line.hasOption('u')) {
+            UpperBound = Integer.parseInt(line.getOptionValue('u'));
+        } else {
+            System.out.println("No upper bound given");
+            return false;
+        }
+       return true;
+    }
+
     public static void main(String[] args) {
+        if (!parseArguments(args)) { System.exit(1); }
 
 
         AudioFormat af48000 = new AudioFormat(44100, 16, 1, true, true);
@@ -71,29 +145,21 @@ public final class Main {
             System.out.println(glmittelwert);
 
             if (spracheaktiv) {
-                if (glmittelwert < 600) {
+                if (glmittelwert < LowerBound) {
                     spracheaktiv = false;
-                    System.out.println("mikro ist aus");
+                    System.out.println("Mikro ist aus");
                 }
             } else {
 
-                if (glmittelwert > 1000) {
+                if (glmittelwert > UpperBound) {
                     spracheaktiv = true;
-                    System.out.println("mikro ist an");
+                    System.out.println("Mikro ist an");
                     try {
-                        Class cls = Class.forName("de.rwth_aachen.ihf.gong.Main");
-                        ClassLoader classLoader = cls.getClassLoader();
-
-                        try {
-                            Clip clip = AudioSystem.getClip();
-                            File Gongfile = new File(classLoader.getResource("gong1.wav").getFile());
-                            clip.open(AudioSystem.getAudioInputStream(Gongfile));
-                            clip.start();
-                        } catch (Exception exc) {
-                            exc.printStackTrace(System.out);
-                        }
-                    } catch (ClassNotFoundException e) {
-                        System.out.println(e.toString());
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(AudioSystem.getAudioInputStream(new File(GongFileName)));
+                        clip.start();
+                    } catch (Exception exc) {
+                        exc.printStackTrace(System.out);
                     }
                 }
             }
