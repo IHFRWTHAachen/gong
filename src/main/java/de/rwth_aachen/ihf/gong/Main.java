@@ -9,6 +9,7 @@ public final class Main {
 	private static String gongFileName = "";
 	private static int lowerBound = 0;
 	private static int upperBound = 0;
+	private static Mixer.Info soundDevice = null;
 
 	private static void printVersion() {
 		System.out.println("Gong Version 1.0.4");
@@ -24,6 +25,8 @@ public final class Main {
 		opts.addOption("v", "version", false, "Show version information.");
 		opts.addOption("l", "lower", true, "Lower threshold to activate gong.");
 		opts.addOption("u", "upper", true, "Upper threshold to activate gong.");
+		opts.addOption("ls", "list-sounddevices", false, "Show list of all sound devices.");
+		opts.addOption("s", "sounddevice", true, "Use the given sound device.");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line;
@@ -45,10 +48,19 @@ public final class Main {
 			return false;
 		}
 
+		if (line.hasOption("ls")) {
+			Mixer.Info[] soundDevices = AudioSystem.getMixerInfo();
+			for (Mixer.Info device : soundDevices) {
+				System.out.println(device.getName());
+			}
+			return false;
+		}
+
 		if (line.hasOption('g')) {
 			gongFileName = line.getOptionValue('g');
 		} else {
-			System.out.println("ERROR: No Gong file.");
+			System.out.println("ERROR: No sound file given.");
+			return false;
 		}
 
 		if (line.hasOption('l')) {
@@ -62,6 +74,25 @@ public final class Main {
 			upperBound = Integer.parseInt(line.getOptionValue('u'));
 		} else {
 			System.out.println("ERROR: No upper bound given.");
+			return false;
+		}
+
+		if (line.hasOption('s')) {
+			String soundDeviceName = line.getOptionValue('s');
+
+			Mixer.Info[] soundDevices = AudioSystem.getMixerInfo();
+			for (Mixer.Info device : soundDevices) {
+				if (device.getName().equalsIgnoreCase(soundDeviceName)) {
+					soundDevice = device;
+					break;
+				}
+			}
+
+			if (soundDevice == null) {
+				System.out.println("ERROR: Sound device not found.");
+			}
+		} else {
+			System.out.println("ERROR: No sound device given.");
 			return false;
 		}
 
@@ -136,7 +167,7 @@ public final class Main {
 					voiceActive = true;
 					System.out.println("INFO: Microphone is active.");
 
-					try (Clip clip = AudioSystem.getClip()) {
+					try (Clip clip = AudioSystem.getClip(soundDevice)) {
 						clip.open(AudioSystem.getAudioInputStream(new File(gongFileName)));
 						clip.addLineListener((e) -> {
 							if (e.getType() == LineEvent.Type.STOP) {
