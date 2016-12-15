@@ -74,7 +74,6 @@ public final class Main {
 		}
 
 		AudioFormat af48000 = new AudioFormat(44100, 16, 1, true, true);
-
 		TargetDataLine line = null;
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class, af48000);
 		if (!AudioSystem.isLineSupported(info)) {
@@ -91,50 +90,50 @@ public final class Main {
 			System.exit(1);
 		}
 
-		// assume that the TargetDataLine, line, has already been obtained and opened
-		int numbytesread;
+		// assume that the TargetDataLine (line) has already been obtained and opened
+		int numBytesRead;
 		byte[] data = new byte[line.getBufferSize() / 5];
 
 		// begin audio capture
 		line.start();
 		System.out.println("INFO: Audio capture started.");
 
-		final byte numberglm = 10;
-		int[] glm = new int[numberglm];
+		final byte numberGlm = 10;
+		int[] glm = new int[numberGlm];
 		int counter = 0;
 
-		boolean spracheAktiv = false;
+		boolean voiceActive = false;
 		while (true) {
 			// read the next chunk of data from the TargetDataLine
-			numbytesread = line.read(data, 0, data.length);
+			numBytesRead = line.read(data, 0, data.length);
 
-			// save this chunk of data.
-			int summe = 0;
-			int intdata;
-			for (int i = 0; i < numbytesread; i += 2) {
-				intdata = (data[i] * 265) + data[(i + 1)];
-				summe += Math.abs(intdata);
+			// save this chunk of data
+			int sum = 0;
+			int intData;
+			for (int i = 0; i < numBytesRead; i += 2) {
+				intData = (data[i] * 265) + data[(i + 1)];
+				sum += Math.abs(intData);
 			}
-			summe /= (numbytesread / 2);
+			sum /= (numBytesRead / 2);
 
-			glm[counter] = summe;
-			counter = (counter + 1) % numberglm;
+			glm[counter] = sum;
+			counter = (counter + 1) % numberGlm;
 
-			int glMittelwert = 0;
-			for (int j = 0; j < numberglm; j++) {
-				glMittelwert += glm[j];
+			int glAverage = 0;
+			for (int j = 0; j < numberGlm; j++) {
+				glAverage += glm[j];
 			}
-			glMittelwert /= numberglm;
-			System.out.println("DEBUG: glMittelwert = " + glMittelwert);
+			glAverage /= numberGlm;
+			System.out.println("DEBUG: glAverage = " + glAverage);
 
-			if (spracheAktiv) {
-				if (glMittelwert < lowerBound) {
-					spracheAktiv = false;
+			if (voiceActive) {
+				if (glAverage < lowerBound) {
+					voiceActive = false;
 					System.out.println("INFO: Microphone is inactive.");
 				}
 			} else {
-				if (glMittelwert > upperBound) {
-					spracheAktiv = true;
+				if (glAverage > upperBound) {
+					voiceActive = true;
 					System.out.println("INFO: Microphone is active.");
 
 					try (Clip clip = AudioSystem.getClip()) {
