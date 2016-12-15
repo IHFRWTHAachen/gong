@@ -156,9 +156,8 @@ public final class Main {
 			}
 			sum /= (numBytesRead / 2);
 
-			if(sum>knackschwelle){
-			System.out.println("DEBUG: Knacken unterdrueckt, Wert " + sum);
-
+			if (sum > knackschwelle) {
+				System.out.println("DEBUG: Knacken unterdrueckt, Wert: " + sum);
 				continue;
 			}
 
