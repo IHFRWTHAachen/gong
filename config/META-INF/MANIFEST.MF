@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: de.rwth_aachen.ihf.gong.Main
-
