@@ -113,6 +113,7 @@ public final class Main {
 			System.exit(1);
 		}
 
+
 		AudioFormat af48000 = new AudioFormat(44100, 16, 1, true, true);
 		TargetDataLine line = null;
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class, af48000);
@@ -181,7 +182,8 @@ public final class Main {
 					voiceActive = true;
 					System.out.println("INFO: Microphone is active.");
 
-					try (Clip clip = AudioSystem.getClip(soundDevice)) {
+					try {
+						Clip clip = AudioSystem.getClip(soundDevice);
 						clip.open(AudioSystem.getAudioInputStream(new File(gongFileName)));
 						clip.addLineListener((e) -> {
 							if (e.getType() == LineEvent.Type.STOP) {
