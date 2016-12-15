@@ -188,8 +188,8 @@ public final class Main {
 								try {
 									clip.close();
 									e.getLine().close();
-								} catch (Exception ex) {
-									ex.printStackTrace(System.out);
+								} catch (Exception e2) {
+									System.out.println("ERROR: Unable to stop playback (" + e2.getMessage() + ").");
 								}
 							}
 						});
