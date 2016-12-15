@@ -10,6 +10,7 @@ public final class Main {
 	private static int lowerBound = 0;
 	private static int upperBound = 0;
 	private static Mixer.Info soundDevice = null;
+	private static int knackschwelle = 0;
 
 	private static void printVersion() {
 		System.out.println("Gong Version 1.0.4");
@@ -27,6 +28,7 @@ public final class Main {
 		opts.addOption("u", "upper", true, "Upper threshold to activate gong.");
 		opts.addOption("ls", "list-sounddevices", false, "Show list of all sound devices.");
 		opts.addOption("s", "sounddevice", true, "Use the given sound device.");
+		opts.addOption("k", "knackschwelle", true, "Threshold for single bursts.");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line;
@@ -67,6 +69,13 @@ public final class Main {
 			lowerBound = Integer.parseInt(line.getOptionValue('l'));
 		} else {
 			System.out.println("ERROR: No lower bound given.");
+			return false;
+		}
+
+		if (line.hasOption('k')) {
+			knackschwelle = Integer.parseInt(line.getOptionValue('k'));
+		} else {
+			System.out.println("ERROR: No knackschwelle given.");
 			return false;
 		}
 
@@ -146,6 +155,10 @@ public final class Main {
 				sum += (Math.pow(Math.abs(intData), 2)) / 100;
 			}
 			sum /= (numBytesRead / 2);
+
+			if(sum>knackschwelle){
+				continue;
+			}
 
 			glm[counter] = sum;
 			counter = (counter + 1) % numberGlm;
