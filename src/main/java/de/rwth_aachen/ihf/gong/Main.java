@@ -112,7 +112,7 @@ public final class Main {
 			int intData;
 			for (int i = 0; i < numBytesRead; i += 2) {
 				intData = (data[i] * 265) + data[(i + 1)];
-				sum += Math.abs(intData);
+				sum += (Math.pow(Math.abs(intData), 2)) / 100;
 			}
 			sum /= (numBytesRead / 2);
 
