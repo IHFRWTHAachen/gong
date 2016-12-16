@@ -10,7 +10,7 @@ public final class Main {
 	private static int lowerBound = 0;
 	private static int upperBound = 0;
 	private static Mixer.Info soundDevice = null;
-	private static int knackschwelle = 0;
+	private static int burstThreshold = 0;
 
 	private static void printVersion() {
 		System.out.println("Gong Version 1.0.4");
@@ -24,11 +24,11 @@ public final class Main {
 		opts.addOption("g", "gong", true, "Wave file to be played.");
 		opts.addOption("h", "help", false, "Show this help.");
 		opts.addOption("v", "version", false, "Show version information.");
+		opts.addOption("ls", "list-sounddevices", false, "Show list of all sound devices.");
 		opts.addOption("l", "lower", true, "Lower threshold to activate gong.");
 		opts.addOption("u", "upper", true, "Upper threshold to activate gong.");
-		opts.addOption("ls", "list-sounddevices", false, "Show list of all sound devices.");
+		opts.addOption("b", "burstthreshold", true, "Threshold for single bursts.");
 		opts.addOption("s", "sounddevice", true, "Use the given sound device.");
-		opts.addOption("k", "knackschwelle", true, "Threshold for single bursts.");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line;
@@ -72,17 +72,17 @@ public final class Main {
 			return false;
 		}
 
-		if (line.hasOption('k')) {
-			knackschwelle = Integer.parseInt(line.getOptionValue('k'));
-		} else {
-			System.out.println("ERROR: No knackschwelle given.");
-			return false;
-		}
-
 		if (line.hasOption('u')) {
 			upperBound = Integer.parseInt(line.getOptionValue('u'));
 		} else {
 			System.out.println("ERROR: No upper bound given.");
+			return false;
+		}
+
+		if (line.hasOption('b')) {
+			burstThreshold = Integer.parseInt(line.getOptionValue('b'));
+		} else {
+			System.out.println("ERROR: No burst-threshold given.");
 			return false;
 		}
 
@@ -112,7 +112,6 @@ public final class Main {
 		if (!parseArguments(args)) {
 			System.exit(1);
 		}
-
 
 		AudioFormat af48000 = new AudioFormat(44100, 16, 1, true, true);
 		TargetDataLine line = null;
@@ -157,8 +156,8 @@ public final class Main {
 			}
 			sum /= (numBytesRead / 2);
 
-			if (sum > knackschwelle) {
-				System.out.println("DEBUG: Knacken unterdrueckt, Wert: " + sum);
+			if (sum > burstThreshold) {
+				System.out.println("DEBUG: Suppressed burst. Value = " + sum);
 				continue;
 			}
 
