@@ -11,6 +11,7 @@ public final class Main {
 	private static int upperBound = 0;
 	private static Mixer.Info soundDevice = null;
 	private static int burstThreshold = 0;
+	private static byte numberGlm = 10;
 
 	private static void printVersion() {
 		System.out.println("Gong Version 1.0.4");
@@ -29,6 +30,7 @@ public final class Main {
 		opts.addOption("u", "upper", true, "Upper threshold to activate gong.");
 		opts.addOption("b", "burstthreshold", true, "Threshold for single bursts.");
 		opts.addOption("s", "sounddevice", true, "Use the given sound device.");
+		opts.addOption("n", "numberGlm", true, "Use this number of values for calculating the moving average.");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line;
@@ -104,7 +106,11 @@ public final class Main {
 			System.out.println("ERROR: No sound device given.");
 			return false;
 		}
-
+		
+		if (line.hasOption('n')) {
+			numberGlm = Byte.parseByte(line.getOptionValue('n'));
+		} 
+				
 		return true;
 	}
 
@@ -137,8 +143,8 @@ public final class Main {
 		// begin audio capture
 		line.start();
 		System.out.println("INFO: Audio capture started.");
+		System.out.println("INFO: Buffer size = " + line.getBufferSize());
 
-		final byte numberGlm = 10;
 		int[] glm = new int[numberGlm];
 		int counter = 0;
 
