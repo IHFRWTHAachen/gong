@@ -12,9 +12,10 @@ public final class Main {
 	private static Mixer.Info soundDevice = null;
 	private static int burstThreshold = 0;
 	private static byte numberGlm = 10;
+	private static byte bufferFraction = 5;
 
 	private static void printVersion() {
-		System.out.println("Gong Version 1.0.4");
+		System.out.println("Gong Version 1.1.1");
 		System.out.println("by Ralf Wilke, Korbinian Schraml, powered by IHF RWTH Aachen");
 		System.out.println("New Versions at https://github.com/ihfrwthaachen/gong");
 		System.out.println();
@@ -31,6 +32,8 @@ public final class Main {
 		opts.addOption("b", "burstthreshold", true, "Threshold for single bursts.");
 		opts.addOption("s", "sounddevice", true, "Use the given sound device.");
 		opts.addOption("n", "numberGlm", true, "Use this number of values for calculating the moving average.");
+		opts.addOption("f", "bufferFraction", true, "Use this fraction of the audio input buffer to be read each cycle.");
+		
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line;
@@ -110,6 +113,10 @@ public final class Main {
 		if (line.hasOption('n')) {
 			numberGlm = Byte.parseByte(line.getOptionValue('n'));
 		} 
+		
+		if (line.hasOption('f')) {
+			bufferFraction = Byte.parseByte(line.getOptionValue('f'));
+		} 
 				
 		return true;
 	}
@@ -138,7 +145,7 @@ public final class Main {
 
 		// assume that the TargetDataLine (line) has already been obtained and opened
 		int numBytesRead;
-		byte[] data = new byte[line.getBufferSize() / 5];
+		byte[] data = new byte[line.getBufferSize() / bufferFraction];
 
 		// begin audio capture
 		line.start();
