@@ -14,7 +14,7 @@ public final class Main {
 	private static byte numberGlm = 10;
 
 	private static void printVersion() {
-		System.out.println("Gong Version 1.0.4");
+		System.out.println("Gong Version 1.0.5");
 		System.out.println("by Ralf Wilke, Korbinian Schraml, powered by IHF RWTH Aachen");
 		System.out.println("New Versions at https://github.com/ihfrwthaachen/gong");
 		System.out.println();
